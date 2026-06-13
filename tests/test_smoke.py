@@ -1,0 +1,3 @@
+import aeroquery
+
+assert True
