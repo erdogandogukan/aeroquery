@@ -1,3 +1,5 @@
 import aeroquery
 
-assert True
+def test_import():
+    import aeroquery
+    assert aeroquery is not None
