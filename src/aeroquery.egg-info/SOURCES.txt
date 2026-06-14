@@ -1,8 +1,0 @@
-README.md
-pyproject.toml
-src/aeroquery/__init__.py
-src/aeroquery.egg-info/PKG-INFO
-src/aeroquery.egg-info/SOURCES.txt
-src/aeroquery.egg-info/dependency_links.txt
-src/aeroquery.egg-info/top_level.txt
-tests/test_smoke.py
