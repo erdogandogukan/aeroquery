@@ -1,8 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile
 from pydantic import BaseModel
+from aeroquery.detect import Detector
 
 
 app = FastAPI(title="AeroQuery")
+detector = Detector("models/best.pt")
 
 class VehicleEntry(BaseModel):
     plate: str
@@ -24,4 +26,20 @@ async def read_slot(slot_id: int):
 @app.post("/vehicles")
 async def create_vehicle(entry: VehicleEntry):
     return {"message": "Arac Kaydedildi", "data": entry}
-   
+
+
+
+@app.post("/detect")
+async def detect(file: UploadFile):
+    contents = await file.read()
+
+    temp_path = "temp_image.jpg"
+    with open(temp_path, "wb") as f:
+        f.write(contents)
+
+    detections = detector.predict(temp_path)
+
+    return [
+    {"class_name": d.class_name, "confidence": d.confidence, "bbox": d.bbox}
+    for d in detections
+    ]    

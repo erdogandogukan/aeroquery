@@ -7,3 +7,4 @@ venv/
 .env
 models/
 deneme.py
+temp_image.jpg
