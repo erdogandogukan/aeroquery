@@ -1,6 +1,7 @@
 from fastapi import FastAPI, UploadFile
 from pydantic import BaseModel
 from aeroquery.detect import Detector
+from aeroquery.storage import save_detection
 
 
 app = FastAPI(title="AeroQuery")
@@ -38,6 +39,9 @@ async def detect(file: UploadFile):
         f.write(contents)
 
     detections = detector.predict(temp_path)
+
+    for d in detections:
+        save_detection(d.class_name, d.confidence, d.bbox)
 
     return [
     {"class_name": d.class_name, "confidence": d.confidence, "bbox": d.bbox}
