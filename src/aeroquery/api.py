@@ -2,6 +2,7 @@ from fastapi import FastAPI, UploadFile
 from pydantic import BaseModel
 from aeroquery.detect import Detector
 from aeroquery.storage import save_detection
+from aeroquery.agent import ask_agent
 
 
 app = FastAPI(title="AeroQuery")
@@ -12,6 +13,8 @@ class VehicleEntry(BaseModel):
     slot_id: int
     vehicle_type: str
     entry_time: str
+
+
 
 @app.get("/")
 async def read_root():
@@ -47,3 +50,11 @@ async def detect(file: UploadFile):
     {"class_name": d.class_name, "confidence": d.confidence, "bbox": d.bbox}
     for d in detections
     ]    
+
+class AgentQuery(BaseModel):
+    question: str
+
+@app.post("/agent")
+async def agent_endpoint(query: AgentQuery):
+    answer = ask_agent(query.question)
+    return {"answer" : answer}

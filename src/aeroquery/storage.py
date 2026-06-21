@@ -47,3 +47,19 @@ def save_detection(class_name, confidence, bbox):
 
     conn.commit()
     conn.close()
+
+
+def count_detections(class_name: str) -> int:
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT COUNT(*) FROM detections WHERE class_name = ?",
+        (class_name,)
+    )
+
+    result = cursor.fetchone()
+
+    conn.close()
+
+    return result[0]    
