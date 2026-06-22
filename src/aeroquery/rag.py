@@ -1,6 +1,8 @@
 import ollama
 import chromadb
 from aeroquery.reports import REPORTS
+from datetime import datetime
+from collections import Counter
 
 def embed(text: str) -> list[float]:
     return ollama.embeddings(model="nomic-embed-text", prompt=text)["embedding"]
@@ -23,6 +25,27 @@ def index_reports():
         )
     print(f"{len(REPORTS)} rapor indekslendi.")
 
+def add_report(report_text: str) -> None:
+    
+    vector = embed(report_text)
+    report_id = datetime.now().isoformat()
+
+    collection.add(
+        ids=[report_id],
+        embeddings=[vector],
+        documents=[report_text],
+    )
+
+def create_report_from_detections(detections) -> str:
+    class_names = [d.class_name for d in detections]
+    counts = Counter(class_names)
+
+    summary = ",".join(f"{count} {name}" for name, count in counts.items())
+
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    return f"{timestamp}, drone observation: detected {summary}."
+    
 
 
 def search_reports(query: str, n: int = 3) -> list[str]:

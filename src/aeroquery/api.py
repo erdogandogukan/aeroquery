@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from aeroquery.detect import get_detector
 from aeroquery.storage import save_detection
 from aeroquery.agent import ask_agent
-
+from aeroquery.rag import create_report_from_detections, add_report
 
 app = FastAPI(title="AeroQuery")
 
@@ -45,6 +45,9 @@ async def detect(file: UploadFile):
 
     for d in detections:
         save_detection(d.class_name, d.confidence, d.bbox)
+
+    report = create_report_from_detections(detections)
+    add_report(report)
 
     return [
     {"class_name": d.class_name, "confidence": d.confidence, "bbox": d.bbox}
