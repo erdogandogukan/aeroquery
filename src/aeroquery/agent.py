@@ -2,6 +2,7 @@ import ollama
 from aeroquery.storage import count_detections
 from collections import Counter
 from aeroquery.detect import get_detector
+from aeroquery.rag import search_reports
 
 def detect_image(image_path: str) -> str:
     detector = get_detector()
@@ -52,6 +53,26 @@ def ask_agent(question: str) -> str:
         }
     }
 }
+    
+    search_tool = {
+        "type": "function",
+        "function": {
+            "name": "search_reports",
+            "description": "Searches past drone observation reports for relevant information. Use this for open-ended questions about events, conditions, or observations, e.g. 'were there any suspicious activities?'",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "The search query describing what to look for in the reports."
+                    }
+                },
+                "required": ["query"]
+            }
+        }
+    }
+    
+
 
     
     system_prompt = "You are AeroQuery, a database assistant for drone detection data. Answer the user's question using ONLY the data returned by the tools. Do not use your general knowledge or make up numbers. If a tool returns a count, state that exact number clearly and concisely."
@@ -63,7 +84,7 @@ def ask_agent(question: str) -> str:
     ]
 
    
-    response = ollama.chat(model = MODEL, messages=messages, tools=[count_tool, detect_tool])
+    response = ollama.chat(model = MODEL, messages=messages, tools=[count_tool, detect_tool, search_tool])
 
     
     messages.append(response["message"])
@@ -78,6 +99,9 @@ def ask_agent(question: str) -> str:
         result = count_detections(tool_args["class_name"])
     elif tool_name == "detect_image":
         result = detect_image(tool_args["image_path"])
+    elif tool_name == "search_reports":
+        result = search_reports(tool_args["query"])
+        result = "\n".join(result)     
     else:
         result = "Unknown tool requested."        
     
