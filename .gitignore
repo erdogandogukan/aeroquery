@@ -17,3 +17,8 @@ deneme_count.py
 deneme_agent.py
 deneme_detect_tool.py
 deneme_multi.py
+chroma_db/
+deneme_embed.py
+deneme_index.py
+deneme_rag.py
+deneme_search.py
