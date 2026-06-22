@@ -1,12 +1,12 @@
 from fastapi import FastAPI, UploadFile
 from pydantic import BaseModel
-from aeroquery.detect import Detector
+from aeroquery.detect import get_detector
 from aeroquery.storage import save_detection
 from aeroquery.agent import ask_agent
 
 
 app = FastAPI(title="AeroQuery")
-detector = Detector("models/best.pt")
+
 
 class VehicleEntry(BaseModel):
     plate: str
@@ -40,7 +40,7 @@ async def detect(file: UploadFile):
     temp_path = "temp_image.jpg"
     with open(temp_path, "wb") as f:
         f.write(contents)
-
+    detector = get_detector()
     detections = detector.predict(temp_path)
 
     for d in detections:

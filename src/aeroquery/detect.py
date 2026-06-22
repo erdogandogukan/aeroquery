@@ -29,3 +29,14 @@ class Detector:
             detections.append(Detection(class_name, confidence, bbox))
         
         return detections
+    
+
+
+_detector = None
+
+def get_detector() -> Detector:
+    global _detector
+    
+    if _detector is None:
+        _detector = Detector("models/best.pt")
+    return _detector

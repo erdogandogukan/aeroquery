@@ -1,5 +1,17 @@
 import ollama
 from aeroquery.storage import count_detections
+from collections import Counter
+from aeroquery.detect import get_detector
+
+def detect_image(image_path: str) -> str:
+    detector = get_detector()
+    detections = detector.predict(image_path)
+
+    class_names = [d.class_name for d in detections]
+    counts = Counter(class_names)
+
+    summary = ", ".join(f"{count} {name}" for name, count in counts.items())
+    return f"Detected: {summary}"
 
 MODEL = "llama3.1:8b"
 
@@ -23,19 +35,37 @@ def ask_agent(question: str) -> str:
         }
     }
 
+    detect_tool = {
+    "type": "function",
+    "function": {
+        "name": "detect_image",
+        "description": "Analyzes an image file and returns what objects are detected in it. Use this when the user asks what is in an image or wants an image analyzed.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "image_path": {
+                    "type": "string",
+                    "description": "The file path of the image to analyze, e.g. 'models/photo.jpg'"
+                }
+            },
+            "required": ["image_path"]
+        }
+    }
+}
+
     
     system_prompt = "You are AeroQuery, a database assistant for drone detection data. Answer the user's question using ONLY the data returned by the tools. Do not use your general knowledge or make up numbers. If a tool returns a count, state that exact number clearly and concisely."
 
-    # Tek bir mesaj listesi — adım adım büyüyecek
+    
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": question},
     ]
 
-    # 1) İlk çağrı: LLM'e soru + araç ver
-    response = ollama.chat(model = MODEL, messages=messages, tools=[count_tool])
+   
+    response = ollama.chat(model = MODEL, messages=messages, tools=[count_tool, detect_tool])
 
-    # 2) LLM'in cevabını (araç çağırma kararını) listeye ekle
+    
     messages.append(response["message"])
 
     # 3) Araç çağrısını al ve çalıştır
@@ -44,13 +74,19 @@ def ask_agent(question: str) -> str:
     tool_args = tool_call["function"]["arguments"]
     
 
-    result = count_detections(tool_args["class_name"])
+    if tool_name == "count_detections":
+        result = count_detections(tool_args["class_name"])
+    elif tool_name == "detect_image":
+        result = detect_image(tool_args["image_path"])
+    else:
+        result = "Unknown tool requested."        
     
 
-    # 4) Araç sonucunu listeye ekle
+    
     messages.append({"role": "tool", "content": str(result), "tool_name": tool_name})
 
-    # 5) İkinci çağrı: artık liste her şeyi içeriyor → nihai cevap
+    
     final_response = ollama.chat(model = MODEL, messages=messages)
     
     return final_response["message"]["content"]
+
