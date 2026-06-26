@@ -1,6 +1,7 @@
 import cv2
 from aeroquery.detect import get_detector
 from aeroquery.storage import save_detection
+from aeroquery.rag import create_report_from_detections, add_report
 
 def process_video(video_path: str, frame_skip: int = 30):
     
@@ -22,6 +23,9 @@ def process_video(video_path: str, frame_skip: int = 30):
             for d in detections:
                 save_detection(d.class_name, d.confidence, d.bbox)
 
+            report = create_report_from_detections(detections)
+            add_report(report)
+            
             print(f"Kare {frame_count}: {len(detections)} tespit")
             
         frame_count += 1
