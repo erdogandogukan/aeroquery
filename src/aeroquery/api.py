@@ -8,29 +8,9 @@ from aeroquery.rag import create_report_from_detections, add_report
 app = FastAPI(title="AeroQuery")
 
 
-class VehicleEntry(BaseModel):
-    plate: str
-    slot_id: int
-    vehicle_type: str
-    entry_time: str
-
-
-
 @app.get("/")
 async def read_root():
-    return {"message" : "selamm" }
-
-
-
-@app.get("/slots/{slot_id}")
-async def read_slot(slot_id: int):
-    return {"slot_id": slot_id}
-
-
-@app.post("/vehicles")
-async def create_vehicle(entry: VehicleEntry):
-    return {"message": "Arac Kaydedildi", "data": entry}
-
+    return {"status": "ok", "service": "AeroQuery API"}
 
 
 @app.post("/detect")
@@ -50,14 +30,16 @@ async def detect(file: UploadFile):
     add_report(report)
 
     return [
-    {"class_name": d.class_name, "confidence": d.confidence, "bbox": d.bbox}
-    for d in detections
-    ]    
+        {"class_name": d.class_name, "confidence": d.confidence, "bbox": d.bbox}
+        for d in detections
+    ]
+
 
 class AgentQuery(BaseModel):
     question: str
 
+
 @app.post("/agent")
 async def agent_endpoint(query: AgentQuery):
     answer = ask_agent(query.question)
-    return {"answer" : answer}
+    return {"answer": answer}

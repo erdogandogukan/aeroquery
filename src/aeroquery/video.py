@@ -19,14 +19,18 @@ def process_video(video_path: str, frame_skip: int = 30):
         if frame_count % frame_skip == 0:
             process_count += 1
 
-            detections = detector.predict(frame)
-            for d in detections:
-                save_detection(d.class_name, d.confidence, d.bbox)
+            try:
+                detections = detector.predict(frame)
+                for d in detections:
+                    save_detection(d.class_name, d.confidence, d.bbox)
 
-            report = create_report_from_detections(detections)
-            add_report(report)
-            
-            print(f"Kare {frame_count}: {len(detections)} tespit")
+                report = create_report_from_detections(detections)
+                add_report(report)
+
+                print(f"Kare {frame_count}: {len(detections)} tespit")
+
+            except Exception as e:
+                print(f"Kare {frame_count} islenemedi, atlaniyor: {e}")   
             
         frame_count += 1
 
@@ -69,4 +73,42 @@ def process_video_to_output(video_path: str, output_path: str = "output.mp4"):
 
     cap.release()
     out.release()
-    print(f"{frame_count} kare işlendi, '{output_path}' oluşturuldu.")      
+    print(f"{frame_count} kare islendi, '{output_path}' olusturuldu.")      
+
+
+def process_webcam(frame_skip: int = 5):
+    
+    cap = cv2.VideoCapture(0)
+
+    detector = get_detector()
+    frame_count = 0
+    last_detections = []
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        
+        if frame_count % frame_skip == 0:
+            last_detections = detector.predict(frame)
+
+        
+        for d in last_detections:
+            x1, y1, x2, y2 = d.bbox
+            x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            cv2.putText(frame, d.class_name, (x1, y1 - 5),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+
+        cv2.imshow("AeroQuery Live", frame)
+
+        
+        if cv2.waitKey(1) & 0xFF == ord("q"):
+            break
+
+        frame_count += 1
+
+    cap.release()
+    cv2.destroyAllWindows()
+    print("Kamera kapatildi.")    
