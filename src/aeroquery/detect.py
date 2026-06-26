@@ -13,8 +13,8 @@ class Detector:
     def __init__(self, weights_path: str) -> None:
         self.model = YOLO(weights_path)
         
-    def predict(self, image_path: str) -> list[Detection]:
-        results = self.model(image_path)
+    def predict(self, source) -> list[Detection]:
+        results = self.model(source)
         r = results[0]
 
 
