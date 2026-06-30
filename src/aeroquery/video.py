@@ -27,16 +27,16 @@ def process_video(video_path: str, frame_skip: int = 30):
                 report = create_report_from_detections(detections)
                 add_report(report)
 
-                print(f"Kare {frame_count}: {len(detections)} tespit")
+                print(f"Frame {frame_count}: {len(detections)} detect")
 
             except Exception as e:
-                print(f"Kare {frame_count} islenemedi, atlaniyor: {e}")   
+                print(f"Frame {frame_count}  failed, skipping: {e}")   
             
         frame_count += 1
 
     cap.release()
 
-    print(f"\nToplam {frame_count} kare okundu, {process_count} kare islendi")
+    print(f"\nTotal {frame_count} frames read, {process_count} frames processed")
 
 
 def process_video_to_output(video_path: str, output_path: str = "output.mp4"):
@@ -73,7 +73,7 @@ def process_video_to_output(video_path: str, output_path: str = "output.mp4"):
 
     cap.release()
     out.release()
-    print(f"{frame_count} kare islendi, '{output_path}' olusturuldu.")      
+    print(f"{frame_count} frames read, '{output_path}' was created.")      
 
 
 def process_webcam(frame_skip: int = 5):
@@ -111,4 +111,4 @@ def process_webcam(frame_skip: int = 5):
 
     cap.release()
     cv2.destroyAllWindows()
-    print("Kamera kapatildi.")    
+    print("Camera closed.")    

@@ -89,7 +89,7 @@ def ask_agent(question: str) -> str:
     
     messages.append(response["message"])
 
-    # 3) Araç çağrısını al ve çalıştır
+    
     tool_call = response["message"]["tool_calls"][0]
     tool_name = tool_call["function"]["name"]
     tool_args = tool_call["function"]["arguments"]

@@ -23,7 +23,7 @@ def index_reports():
             embeddings=[vector],
             documents=[report],
         )
-    print(f"{len(REPORTS)} rapor indekslendi.")
+    print(f"{len(REPORTS)} reports indexed.")
 
 def add_report(report_text: str) -> None:
     
