@@ -1,9 +1,18 @@
 [project]
 name = "aeroquery"
 version = "0.1.0"
-description = "Drone görüntülerinde nesne tespiti + RAG/LLM ile sorgulanabilir hale getirme"
+description = "Drone object detection system with LLM agent and RAG for natural-language querying"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "ultralytics",
+    "ollama",
+    "chromadb",
+    "numpy",
+    "opencv-python",
+]
 
 [build-system]
 requires = ["setuptools>=68"]
