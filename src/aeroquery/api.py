@@ -1,11 +1,20 @@
 from fastapi import FastAPI, UploadFile, HTTPException
 from pydantic import BaseModel
 from aeroquery.detect import get_detector
-from aeroquery.storage import save_detection
 from aeroquery.agent import ask_agent
 from aeroquery.rag import create_report_from_detections, add_report
+from contextlib import asynccontextmanager
+from aeroquery.storage import save_detection, init_db
 
-app = FastAPI(title="AeroQuery")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
+    
+
+app = FastAPI(title="AeroQuery", lifespan=lifespan)
 
 
 @app.get("/")
